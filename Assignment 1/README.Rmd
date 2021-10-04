@@ -3,9 +3,9 @@ title: "Assignment 1"
 Name: Carmen Chen
 Date: 09/11/2021
 output:
- - github_document:
+ github_document:
    html_preview: false
- - html_document: default
+ html_document: default
 always_allow_html: true
 ---
 
