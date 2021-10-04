@@ -1,0 +1,34 @@
+---
+title: "Assignment 2"
+author: "Carmen Chen"
+date: "10/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tibble)
+library(ggplot2)
+```
+
+
+#Download the datasets
+```{r get the data, cache=TRUE}
+#individual dataset
+ind <- "chs_individual.csv"
+if (!file.exists(ind))
+  download.file("https://github.com/USCbiostats/data-science-data/blob/master/01_chs/chs_individual.csv", destfile = ind)
+
+ind <- read.csv(ind)
+ind <- as.tibble(ind)
+
+#regional dataset
+reg <- "chs_regional.csv"
+if (!file.exists(reg))
+  download.file("https://github.com/USCbiostats/data-science-data/blob/master/01_chs/chs_regional.csv", destfile = reg)
+
+reg <- read.csv(reg)
+reg <- as.tibble(reg)
+```
+
