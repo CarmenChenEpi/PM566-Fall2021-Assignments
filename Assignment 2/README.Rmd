@@ -13,12 +13,14 @@ library(ggplot2)
 ```
 
 
+#Step 1: Data Wrangling
+
 #Download the datasets
 ```{r get the data, cache=TRUE}
 #individual dataset
 ind <- "chs_individual.csv"
 if (!file.exists(ind))
-  download.file("https://github.com/USCbiostats/data-science-data/blob/master/01_chs/chs_individual.csv", destfile = ind)
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/01_chs/chs_individual.csv", destfile = ind)
 
 ind <- read.csv(ind)
 ind <- as.tibble(ind)
@@ -26,13 +28,22 @@ ind <- as.tibble(ind)
 #regional dataset
 reg <- "chs_regional.csv"
 if (!file.exists(reg))
-  download.file("https://github.com/USCbiostats/data-science-data/blob/master/01_chs/chs_regional.csv", destfile = reg)
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/01_chs/chs_regional.csv", destfile = reg)
 
 reg <- read.csv(reg)
 reg <- as.tibble(reg)
 ```
+#Merge the data
+```{r merge the data}
+dat <- merge(
+  x = ind,
+  y = reg,
+  all.x = TRUE,
+  all.y = TRUE,
+  by.x = "townname",
+  by.y = "townname"
+)
 
-```{r}
-head(ind)
+dat %>% nrow()
 ```
 
