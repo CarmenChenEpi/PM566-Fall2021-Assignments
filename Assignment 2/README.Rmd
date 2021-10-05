@@ -139,12 +139,24 @@ colSums(is.na(data))
 
 
 
-#Creat a new categorical varialbe
-```{r create variable}
+#Creat categorical varialbes
+```{r create obesity_level}
 data$obesity_level <- as.factor(ifelse(data$bmi<14, "underweight",
                         ifelse(data$bmi<=22, "normal",
                                ifelse(data$bmi<=24, "overweight", "obese"))))
 
 tapply(data$bmi, data$obesity_level, summary)
+```
+
+```{r create smoke_gas_exposure}
+data$smoke_gas_exposure <- as.factor(
+  ifelse(data$smoke==1 & data$gasstove==1, "Both",           
+  ifelse(data$smoke==1 & data$gasstove==0, "Only second hand smoke",
+  ifelse(data$smoke==0 & data$gasstove==0, "Neither", "Only gas stove"))))
+
+table(data$smoke_gas_exposure, data$smoke)
+
+table(data$smoke_gas_exposure, data$gasstove)
+
 ```
 
