@@ -2,7 +2,8 @@
 title: "Assignment 2"
 author: "Carmen Chen"
 date: "10/4/2021"
-output: html_document
+output: github_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tibble)
 library(ggplot2)
+library(dplyr)
+library(gtsummary)
 ```
 
 
@@ -33,9 +36,10 @@ if (!file.exists(reg))
 reg <- read.csv(reg)
 reg <- as.tibble(reg)
 ```
+
 #Merge the data
 ```{r merge the data}
-dat <- merge(
+data <- merge(
   x = ind,
   y = reg,
   all.x = TRUE,
@@ -43,7 +47,104 @@ dat <- merge(
   by.x = "townname",
   by.y = "townname"
 )
+```
 
-dat %>% nrow()
+#Check the dataset
+```{r check for duplicates and missing values}
+data %>% nrow()
+
+colSums(is.na(data))
+
+```
+```{r data imputation}
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(height = replace(height, is.na(height), mean(height, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(agepft = replace(agepft, is.na(agepft), mean(agepft, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(weight = replace(weight, is.na(weight), mean(weight, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(bmi = replace(bmi, is.na(bmi), mean(bmi, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(asthma  = replace(asthma, is.na(asthma), mean(asthma, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(father_asthma = replace(father_asthma, is.na(father_asthma), mean(father_asthma, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(mother_asthma = replace(mother_asthma, is.na(mother_asthma), mean(mother_asthma, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(father_asthma = replace(father_asthma, is.na(father_asthma), mean(father_asthma, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(wheeze = replace(wheeze, is.na(wheeze), mean(wheeze, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(hayfever = replace(hayfever, is.na(hayfever), mean(hayfever, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(allergy = replace(allergy, is.na(allergy), mean(allergy, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(educ_parent = replace(educ_parent, is.na(educ_parent), mean(educ_parent, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(smoke = replace(smoke, is.na(smoke), mean(smoke, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(gasstove = replace(gasstove, is.na(gasstove), mean(gasstove, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(fev = replace(fev, is.na(fev), mean(fev, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(fvc = replace(fvc, is.na(fvc), mean(fvc, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(mmef = replace(mmef, is.na(mmef), mean(mmef, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(no_24hr = replace(no_24hr, is.na(no_24hr), mean(no_24hr, na.rm = TRUE)))
+
+data <- data %>% 
+     group_by(male, hispanic) %>%
+     mutate(pm2_5_fr = replace(pm2_5_fr, is.na(pm2_5_fr), mean(pm2_5_fr, na.rm = TRUE)))
+
+colSums(is.na(data))
+```
+
+
+
+
+#Creat a new categorical varialbe
+```{r create variable}
+data$obesity_level <- as.factor(ifelse(data$bmi<14, "underweight",
+                        ifelse(data$bmi<=22, "normal",
+                               ifelse(data$bmi<=24, "overweight", "obese"))))
+
+tapply(data$bmi, data$obesity_level, summary)
 ```
 
