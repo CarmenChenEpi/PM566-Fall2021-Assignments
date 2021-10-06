@@ -12,11 +12,10 @@ library(tidyverse)
 library(tibble)
 library(ggplot2)
 library(dplyr)
-library(gtsummary)
 ```
 
 
-#Step 1: Data Wrangling
+##Step 1: Data Wrangling
 
 #Download the datasets
 ```{r get the data, cache=TRUE}
@@ -75,43 +74,39 @@ data <- data %>%
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(asthma  = replace(asthma, is.na(asthma), mean(asthma, na.rm = TRUE)))
+     mutate(asthma  = replace(asthma, is.na(asthma), median(asthma, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(father_asthma = replace(father_asthma, is.na(father_asthma), mean(father_asthma, na.rm = TRUE)))
+     mutate(father_asthma = replace(father_asthma, is.na(father_asthma), median(father_asthma, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(mother_asthma = replace(mother_asthma, is.na(mother_asthma), mean(mother_asthma, na.rm = TRUE)))
+     mutate(mother_asthma = replace(mother_asthma, is.na(mother_asthma), median(mother_asthma, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(father_asthma = replace(father_asthma, is.na(father_asthma), mean(father_asthma, na.rm = TRUE)))
+     mutate(wheeze = replace(wheeze, is.na(wheeze), median(wheeze, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(wheeze = replace(wheeze, is.na(wheeze), mean(wheeze, na.rm = TRUE)))
+     mutate(hayfever = replace(hayfever, is.na(hayfever), median(hayfever, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(hayfever = replace(hayfever, is.na(hayfever), mean(hayfever, na.rm = TRUE)))
+     mutate(allergy = replace(allergy, is.na(allergy), median(allergy, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(allergy = replace(allergy, is.na(allergy), mean(allergy, na.rm = TRUE)))
+     mutate(educ_parent = replace(educ_parent, is.na(educ_parent), median(educ_parent, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(educ_parent = replace(educ_parent, is.na(educ_parent), mean(educ_parent, na.rm = TRUE)))
+     mutate(smoke = replace(smoke, is.na(smoke), median(smoke, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
-     mutate(smoke = replace(smoke, is.na(smoke), mean(smoke, na.rm = TRUE)))
-
-data <- data %>% 
-     group_by(male, hispanic) %>%
-     mutate(gasstove = replace(gasstove, is.na(gasstove), mean(gasstove, na.rm = TRUE)))
+     mutate(gasstove = replace(gasstove, is.na(gasstove), median(gasstove, na.rm = TRUE)))
 
 data <- data %>% 
      group_by(male, hispanic) %>%
@@ -157,6 +152,67 @@ data$smoke_gas_exposure <- as.factor(
 table(data$smoke_gas_exposure, data$smoke)
 
 table(data$smoke_gas_exposure, data$gasstove)
+
+```
+
+
+#Create summary tables
+
+```{r summary tables}
+library(data.table)
+
+#by townname
+data %>%
+  group_by(townname,asthma) %>%
+  summarise(mean_fev = mean(fev, na.rm = TRUE),
+            sd_fev = sd(fev, na.rm =TRUE),
+            n = n(),
+            sd_asthma = sd(asthma, na.rm = TRUE)) %>%
+  mutate(prop = prop.table(n)) %>%
+  knitr::kable()
+
+#by sex
+data %>%
+  group_by(male,asthma) %>%
+  summarise(mean_fev = mean(fev, na.rm = TRUE),
+            sd_fev = sd(fev, na.rm =TRUE),
+            n = n(),
+            sd_asthma = sd(asthma, na.rm = TRUE)) %>%
+  mutate(prop = prop.table(n)) %>%
+  knitr::kable()
+
+#by obesity level
+data %>%
+  group_by(obesity_level,asthma) %>%
+  summarise(mean_fev = mean(fev, na.rm = TRUE),
+            sd_fev = sd(fev, na.rm =TRUE),
+            n = n(),
+            sd_asthma = sd(asthma, na.rm = TRUE)) %>%
+  mutate(prop = prop.table(n)) %>%
+  knitr::kable()
+
+#by smoke_gas_exposure
+data %>%
+  group_by(smoke_gas_exposure,asthma) %>%
+  summarise(mean_fev = mean(fev, na.rm = TRUE),
+            sd_fev = sd(fev, na.rm =TRUE),
+            n = n(),
+            sd_asthma = sd(asthma, na.rm = TRUE)) %>%
+  mutate(prop = prop.table(n)) %>%
+  knitr::kable()
+```
+
+
+
+##Step 2: Looking at the Data (EDA)
+
+Facet plot showing scatterplots with regression lines of BMI vs FEV by “townname”.
+```{r}
+library(ggplot2)
+ggplot(data = data) + 
+  geom_point(mapping = aes(x = bmi, y = fev, color = townname)) + 
+  geom_smooth(mapping = aes(x = bmi, y = fev, linetype = townname)) + 
+  facet_wrap(~townname)
 
 ```
 
