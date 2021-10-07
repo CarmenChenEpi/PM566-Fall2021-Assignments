@@ -206,13 +206,65 @@ data %>%
 
 ##Step 2: Looking at the Data (EDA)
 
-Facet plot showing scatterplots with regression lines of BMI vs FEV by “townname”.
-```{r}
+1. Facet plot showing scatterplots with regression lines of BMI vs FEV by “townname”.
+```{r facet plot}
 library(ggplot2)
-ggplot(data = data) + 
+ggplot(data) + 
   geom_point(mapping = aes(x = bmi, y = fev, color = townname)) + 
   geom_smooth(mapping = aes(x = bmi, y = fev, linetype = townname)) + 
   facet_wrap(~townname)
+
+```
+
+2. Stacked histograms of FEV by BMI category and FEV by smoke/gas exposure. Use different color schemes than the ggplot default.
+```{r histograms}
+#by obesity level
+ggplot(data, aes(x = fev)) +
+  geom_histogram(aes(fill = obesity_level))
+
+#by smoke/gas exposure
+ggplot(data, aes(x = fev)) +
+  geom_histogram(aes(fill = smoke_gas_exposure))
+```
+
+
+3. Barchart of BMI by smoke/gas exposure.
+```{r barchart}
+ggplot(data) +
+  geom_bar(mapping = aes(x = obesity_level, fill = smoke_gas_exposure))
+```
+
+4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
+```{r boxplot}
+#boxplot of FEV by obesity level
+ggplot(data) +
+  geom_boxplot(mapping = aes(x = obesity_level, y = fev))
+
+#boxplot of FEV by smoke/gas exposure category
+ggplot(data) +
+  geom_boxplot(mapping = aes(x = smoke_gas_exposure, y = fev))
+```
+
+5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
+```{r leaflet}
+library(leaflet)
+
+pm25.pal <- colorNumeric(c('darkgreen', 'goldenrod', 'brown'), domain=data$pm25_mass)
+
+leaflet(data) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(
+    lat = ~lat, lng = ~lon,
+    label = ~paste0(round(pm25_mass, 2), '  PM2.5 mass'), color = ~ pm25.pal(pm25_mass),
+    opacity = 1, fillOpacity = 1, radius = 500
+    ) %>%
+  addLegend('bottomleft', pal=pm25.pal, values=data$pm25_mass,
+          title='PM2.5 mass', opacity=1)
+
+```
+
+6. Choose a visualization to examine whether PM2.5 mass is associated with FEV.
+```{r}
 
 ```
 
