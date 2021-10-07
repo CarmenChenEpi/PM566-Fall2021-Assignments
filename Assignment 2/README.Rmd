@@ -246,7 +246,7 @@ ggplot(data) +
 ```
 
 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
-```{r leaflet}
+```{r leaflet, eval = knitr::is_html_output(excludes = "gfm")}
 library(leaflet)
 
 pm25.pal <- colorNumeric(c('darkgreen', 'goldenrod', 'brown'), domain=data$pm25_mass)
