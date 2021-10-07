@@ -264,7 +264,17 @@ leaflet(data) %>%
 ```
 
 6. Choose a visualization to examine whether PM2.5 mass is associated with FEV.
-```{r}
+```{r PM2.5 mass & FEV}
+#general
+ggplot(data, mapping = aes(x = pm25_mass, y = fev)) + 
+  geom_point() + 
+  geom_smooth()
+
+#by sex
+data$sex <- ifelse(data$male == 0, "female", "male")
+ggplot(data, mapping = aes(x = pm25_mass, y = fev, color = sex, linetype = sex)) + 
+  geom_point() + 
+  geom_smooth()
 
 ```
 
