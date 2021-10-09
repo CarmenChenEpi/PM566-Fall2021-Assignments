@@ -205,6 +205,21 @@ data %>%
 
 
 ##Step 2: Looking at the Data (EDA)
+```{r check the data and variables}
+head(data)
+tail(data)
+str(data)
+
+summary(data$bmi)
+summary(data$fev)
+summary(data$lat)
+summary(data$lon)
+
+table(data$townname)
+table(data$obesity_level)
+table(data$smoke_gas_exposure)
+```
+
 
 1. Facet plot showing scatterplots with regression lines of BMI vs FEV by “townname”.
 ```{r facet plot}
@@ -212,38 +227,63 @@ library(ggplot2)
 ggplot(data) + 
   geom_point(mapping = aes(x = bmi, y = fev, color = townname)) + 
   geom_smooth(mapping = aes(x = bmi, y = fev, linetype = townname)) + 
-  facet_wrap(~townname)
+  facet_wrap(~townname) +
+  ggtitle("Scatterplots of BMI vs FEV by “townname”")
 
 ```
+
+Overall, there is a positive association of BMI and FEV. However, in Lompoc and San Dimas, we see a negative association of BMI and FEV when the BMI value is over 25. Such observed association may be due to the influence of outliers. 
+
+
 
 2. Stacked histograms of FEV by BMI category and FEV by smoke/gas exposure. Use different color schemes than the ggplot default.
 ```{r histograms}
 #by obesity level
 ggplot(data, aes(x = fev)) +
-  geom_histogram(aes(fill = obesity_level))
+  geom_histogram(aes(fill = obesity_level)) +
+  ggtitle("Stacked histograms of FEV by BMI category")
 
 #by smoke/gas exposure
 ggplot(data, aes(x = fev)) +
-  geom_histogram(aes(fill = smoke_gas_exposure))
+  geom_histogram(aes(fill = smoke_gas_exposure)) +
+  ggtitle("Stacked histograms of FEV by smoke/gas exposure")
+
 ```
+
+In nomal weight group, the FEV value is normally distributed. However we see a right skewed pattern of FEV value among obese and overweight people, as well as a left skewed pattern of FEV value among underweight people.
+
+The FEV value is normally distributed across people with different smoke and gas exposure groups. 
+
 
 
 3. Barchart of BMI by smoke/gas exposure.
 ```{r barchart}
 ggplot(data) +
-  geom_bar(mapping = aes(x = obesity_level, fill = smoke_gas_exposure))
+  geom_bar(mapping = aes(x = obesity_level, fill = smoke_gas_exposure)) +
+  ggtitle("Barchart of BMI by smoke/gas exposure")
 ```
+
+Across people with different obesity level, those with both smoke and gas exposure have the largest counts, followed by neither smoke or gas exposure, only gas exposure, and only second hand smoke exposure. 
+
+
 
 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
 ```{r boxplot}
 #boxplot of FEV by obesity level
 ggplot(data) +
-  geom_boxplot(mapping = aes(x = obesity_level, y = fev))
+  geom_boxplot(mapping = aes(x = obesity_level, y = fev)) +
+  ggtitle("Boxplot of FEV by obesity level")
 
 #boxplot of FEV by smoke/gas exposure category
 ggplot(data) +
-  geom_boxplot(mapping = aes(x = smoke_gas_exposure, y = fev))
+  geom_boxplot(mapping = aes(x = smoke_gas_exposure, y = fev)) +
+  ggtitle("Boxplot of FEV by smoke/gas exposure category")
 ```
+
+The obese people have the largest mean FEV values, while the underweight people have the smallest mean FEV values. The FEV values do not differ across different smoke and gas exposure groups. 
+
+
+
 
 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
 ```{r leaflet, eval = knitr::is_html_output(excludes = "gfm")}
@@ -259,22 +299,31 @@ leaflet(data) %>%
     opacity = 1, fillOpacity = 1, radius = 500
     ) %>%
   addLegend('bottomleft', pal=pm25.pal, values=data$pm25_mass,
-          title='PM2.5 mass', opacity=1)
+          title='PM2.5 mass', opacity=1) %>%
+  addTitle("Leaflet map of the concentrations of PM2.5 mass in each of the CHS")
 
 ```
+The cities in the Los Angeles county, such as Long Beach, Pasadena, and Riverside, have the largest PM2.5 mass. 
+
 
 6. Choose a visualization to examine whether PM2.5 mass is associated with FEV.
 ```{r PM2.5 mass & FEV}
 #general
 ggplot(data, mapping = aes(x = pm25_mass, y = fev)) + 
   geom_point() + 
-  geom_smooth()
+  geom_smooth() +
+  ggtitle("Scatter and line plot of PM2.5 and FEV")
+
 
 #by sex
 data$sex <- ifelse(data$male == 0, "female", "male")
 ggplot(data, mapping = aes(x = pm25_mass, y = fev, color = sex, linetype = sex)) + 
   geom_point() + 
-  geom_smooth()
+  geom_smooth() +
+  ggtitle("Scatter and line plot of PM2.5 and FEV by sex")
 
 ```
+
+There is no significant association of PM2.5 mass and FEV.
+
 
