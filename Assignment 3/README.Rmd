@@ -18,7 +18,7 @@ library(tidytext)
 
 1. Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed database, and then retrieve the details of the paper as shown in lab 7. How many papers were you able to find?
 
-```{r}
+```{r counts}
 #Download the website
 website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2+trial+vaccine")
 
@@ -32,5 +32,42 @@ counts <- as.character(counts)
 stringr::str_extract(counts, "[0-9,]+")
 ```
 
+```{r query}
+library(httr)
+
+#Make query
+query_ids <- GET(
+  url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  query = list(
+    db = "pubmed",
+    term = "sars-cov-2 trial vaccine",
+    retmax = 1000
+  )
+)
+
+#Extract the content of the response of GET
+ids <- httr::content(query_ids)
+```
+
+```{r regular expression}
+#Turn the result into a character vector
+ids <- as.character(ids)
+
+#Find all the ids
+ids <- stringr::str_extract_all(ids, "<Id>[[:digit:]]+</Id>")[[1]]
+
+#Remove all the leading and trailing <Id> </Id>
+ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
+head(ids)
+paste(ids, collapse =",")
+```
+
+
 2. Using the list of pubmed ids you retrieved, download each papers’ details using the query parameter rettype = abstract. If you get more than 250 ids, just keep the first 250.
 
+```{r}
+
+```
+
+
+3. As we did in lab 7. Create a dataset containing the following: Pubmed ID number, Title of the paper, Name of the journal where it was published, Publication date, and Abstract of the paper (if any).
