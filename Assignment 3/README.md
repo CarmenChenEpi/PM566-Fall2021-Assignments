@@ -67,6 +67,66 @@ paste(ids, collapse =",")
     details using the query parameter rettype = abstract. If you get
     more than 250 ids, just keep the first 250.
 
+``` r
+publications <- GET(
+  url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+  query = list(
+   db = "pubmed",
+   id =  I(paste(ids, collapse = ",")),
+   retmax = 250,
+   rettype = "abstract"
+    )
+)
+
+# Turning the output into character vector
+publications <- httr::content(publications)
+publications_txt <- as.character(publications)
+```
+
 3.  As we did in lab 7. Create a dataset containing the following:
     Pubmed ID number, Title of the paper, Name of the journal where it
     was published, Publication date, and Abstract of the paper (if any).
+
+``` r
+pub_char_list <- xml2::xml_children(publications)
+pub_char_list <- sapply(pub_char_list, as.character)
+
+abstracts <- str_extract(pub_char_list, "<Abstract>[[:print:][:space:]]+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]- =\"]+>") # '</?[[:alnum:]- ="]+>'
+abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
+
+titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
+
+database <- data.frame(
+  PubMed = ids,
+  Title = titles,
+  Abstract = abstracts
+)
+knitr::kable(database[1:20,], caption = "Papers about sars-cov-2 trial vaccine")
+```
+
+| PubMed   | Title | Abstract |
+|:---------|:------|:---------|
+| 34729549 | NA    | NA       |
+| 34726743 | NA    | NA       |
+| 34715931 | NA    | NA       |
+| 34713912 | NA    | NA       |
+| 34711598 | NA    | NA       |
+| 34704204 | NA    | NA       |
+| 34703690 | NA    | NA       |
+| 34702753 | NA    | NA       |
+| 34698827 | NA    | NA       |
+| 34697214 | NA    | NA       |
+| 34697213 | NA    | NA       |
+| 34696316 | NA    | NA       |
+| 34696233 | NA    | NA       |
+| 34696198 | NA    | NA       |
+| 34691078 | NA    | NA       |
+| 34691071 | NA    | NA       |
+| 34690266 | NA    | NA       |
+| 34689821 | NA    | NA       |
+| 34689348 | NA    | NA       |
+| 34689329 | NA    | NA       |
+
+Papers about sars-cov-2 trial vaccine
