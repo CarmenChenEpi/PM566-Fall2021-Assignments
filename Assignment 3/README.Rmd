@@ -109,10 +109,98 @@ database <- data.frame(
   Abstract = abstracts
 )
 
-knitr::kable(database[1:20,], caption = "Papers about sars-cov-2 trial vaccine")
+knitr::kable(database[1:10,], caption = "<strong>Papers about sars-cov-2 trial vaccine</strong>")
 
 ```
 
 
 **Text Mining**
 
+Dowload the data 
+
+```{r dowload the data}
+fn <- "pubmed.csv"
+if(!file.exists(fn))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/03_pubmed/pubmed.csv", destfile = fn)
+
+pubmed <- read.csv(fn)
+pubmed <- as_tibble(pubmed)
+```
+
+
+1. Tokenize the abstracts and count the number of each token. Do you see anything interesting? Does removing stop words change what tokens appear as the most frequent? What are the 5 most common tokens for each search term after removing stopwords?
+
+```{r tokenize the abstracts}
+pubmed %>%
+  unnest_tokens(output = token, input = abstract) %>%
+  count(token, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(token, n))) +
+  geom_col()
+```
+
+There is not much information in the figure because most of the words are stop words. 
+
+```{r remove stop words}
+pubmed %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl("^[0-9]+$", x = word)) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+  geom_col()
+```
+
+After removing the stop words, the most frequent token is "covid". 
+
+
+```{r tokens by search term}
+pubmed %>%
+  group_by(term) %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl("^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+  geom_col() +
+  facet_wrap(~term)
+```
+
+The 5 most frequent tokens for search terms are as follow: "covid", "pandemic", "patients", "disease", "health", and "coronavirus" for search term "covid; "fibrosis", "cystic", patients", "disease", and "Cf" for search term "cystic fibrosis"; "patients", "meningitis", "meningeal", "csf", and "clinical" for search term "meningitis"; "pre", "eclampsia", "preeclampsia", "women", and "pregnancy" for search term "preeclampsia"; "cancer", "prostate", "treatment", "patients", and "disease" for search term "prostate cancer". 
+
+
+
+2. Tokenize the abstracts into bigrams. Find the 10 most common bigram and visualize them with ggplot2.
+
+```{r}
+library(Rcpp)
+pubmed %>%
+  unnest_ngrams(output = bigram, input = abstract, n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  anti_join(stop_words, by = c("bigram" = "word")) %>%
+  filter(!grepl("^[0-9]+$", x = bigram)) %>%
+  top_n(10) %>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+  geom_col()
+```
+
+
+3. Calculate the TF-IDF value for each word-search term combination. (here you want the search term to be the “document”) What are the 5 tokens from each search term with the highest TF-IDF value? How are the results different from the answers you got in question 1?
+
+
+The 5 tokens from each search term with the highest TF-IDF value are in the following table: 
+
+```{r}
+pubmed %>%
+  unnest_tokens(abstract, abstract) %>%
+  group_by(term) %>%
+  count(abstract, term) %>%
+  bind_tf_idf(abstract, term, n) %>%
+  top_n(5) %>%
+  arrange(desc(tf_idf)) %>%
+  knitr::kable()
+```
+
+There are some tokens not in the question 1, such as "sweat", "gestional", "castration", "sars", "psa", "androgen", "pachymeningitis". The tokens in this question seems more relevant and reasonable to the search terms, compared the tokens in question 1. 
