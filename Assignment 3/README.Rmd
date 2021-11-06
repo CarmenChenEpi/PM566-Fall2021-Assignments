@@ -41,7 +41,7 @@ query_ids <- GET(
   query = list(
     db = "pubmed",
     term = "sars-cov-2 trial vaccine",
-    retmax = 1000
+    retmax = 250
   )
 )
 
@@ -94,11 +94,25 @@ abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
 titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
 titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
 
+journals <- str_extract(pub_char_list, "<Title>[[:print:][:space:]]+</Title>")
+journals <- str_remove_all(journals, "</?[[:alnum:]- =\"]+>")
+
+date <- str_extract(pub_char_list, "<PubDate>[[:print:][:space:]]+</PubDate>")
+date <- str_remove_all(date, "</?[[:alnum:]- =\"]+>")
+date <- str_replace_all(date, "[[:space:]]+", " ")
+  
 database <- data.frame(
   PubMed = ids,
   Title = titles,
+  Jounal = journals,
+  PubDate = date,
   Abstract = abstracts
 )
+
 knitr::kable(database[1:20,], caption = "Papers about sars-cov-2 trial vaccine")
 
 ```
+
+
+**Text Mining**
+
